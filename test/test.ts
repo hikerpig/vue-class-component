@@ -401,6 +401,36 @@ describe('vue-class-component', () => {
     expect(vm.valueB).to.equal(456)
   })
 
+  it('mixins should be safe with VueContructor and global mixins', function () {
+    let counter = 0
+
+    /**
+     * dangerous global mixin
+     */
+    Vue.mixin({
+      created() {
+        counter++
+      }
+    })
+
+    @Component
+    class MixinA extends Vue {
+    }
+
+    @Component
+    class MixinB extends Vue {
+    }
+
+    @Component
+    class MyComp extends mixins(MixinA, MixinB) {
+      test() {}
+    }
+
+    const vm = new MyComp()
+    vm.test() // just to avoid 'noUnusedLocals' error
+    expect(counter).to.equal(0)
+  })
+
   it('copies reflection metadata', function () {
     @Component
     @Reflect.metadata('worksConstructor', true)
